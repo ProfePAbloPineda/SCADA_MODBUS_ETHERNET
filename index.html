@@ -1,0 +1,1022 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guía de Laboratorio SCADA - PLC Delta SE Ethernet</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 900px;
+            width: 100%;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 300;
+            letter-spacing: 2px;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .slide {
+            display: none;
+            padding: 40px;
+            animation: fadeIn 0.5s ease-in;
+            min-height: 500px;
+        }
+
+        .slide.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h2 {
+            color: #2a5298;
+            margin-bottom: 25px;
+            font-size: 1.8em;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        h3 {
+            color: #1e3c72;
+            margin: 25px 0 15px 0;
+            font-size: 1.3em;
+        }
+
+        .objectives-box {
+            background: #f8f9fa;
+            border-left: 5px solid #667eea;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 0 10px 10px 0;
+        }
+
+        .objectives-box ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .objectives-box li {
+            padding: 8px 0;
+            padding-left: 30px;
+            position: relative;
+        }
+
+        .objectives-box li:before {
+            content: "▸";
+            position: absolute;
+            left: 0;
+            color: #667eea;
+            font-weight: bold;
+        }
+
+        .equipment-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .equipment-item {
+            background: #f0f4f8;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #d1d9e6;
+        }
+
+        .equipment-item strong {
+            color: #2a5298;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .problem-box {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin: 25px 0;
+            box-shadow: 0 10px 30px rgba(238, 90, 36, 0.3);
+        }
+
+        .problem-box h3 {
+            color: white;
+            border-bottom: 2px solid rgba(255,255,255,0.3);
+            margin-top: 0;
+        }
+
+        .requirement {
+            background: rgba(255,255,255,0.15);
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            backdrop-filter: blur(10px);
+        }
+
+        .image-placeholder {
+            background: #f8f9fa;
+            border: 3px dashed #ced4da;
+            border-radius: 10px;
+            padding: 40px 20px;
+            text-align: center;
+            margin: 20px 0;
+            color: #6c757d;
+        }
+
+        .image-placeholder img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .image-placeholder.placeholder-only {
+            min-height: 250px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .image-row {
+            margin: 25px 0;
+        }
+
+        .phase-badge {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .tag-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 0.95em;
+        }
+
+        .tag-table th,
+        .tag-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .tag-table th {
+            background: #2a5298;
+            color: white;
+            font-weight: 600;
+        }
+
+        .tag-table tr:hover {
+            background: #f5f5f5;
+        }
+
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            padding: 30px 40px;
+            background: #f8f9fa;
+            border-top: 1px solid #e9ecef;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+
+        .btn-prev {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-prev:hover {
+            background: #5a6268;
+            transform: translateX(-3px);
+        }
+
+        .btn-next {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-next:hover {
+            background: #5568d3;
+            transform: translateX(3px);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .progress-bar {
+            height: 5px;
+            background: #e9ecef;
+            position: relative;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            transition: width 0.3s;
+        }
+
+        .slide-counter {
+            text-align: center;
+            padding: 10px;
+            color: #6c757d;
+            font-size: 0.9em;
+            background: #f8f9fa;
+        }
+
+        .warning-box {
+            background: #fff3cd;
+            border-left: 5px solid #ffc107;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .success-box {
+            background: #d4edda;
+            border-left: 5px solid #28a745;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .code-box {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 20px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            line-height: 1.6;
+            margin: 15px 0;
+            overflow-x: auto;
+            border-left: 4px solid #667eea;
+        }
+
+        .code-box .comment {
+            color: #6a9955;
+        }
+
+        .code-box .keyword {
+            color: #569cd6;
+        }
+
+        .code-box .number {
+            color: #b5cea8;
+        }
+
+        .code-box .string {
+            color: #ce9178;
+        }
+
+        .formula-box {
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            border: 2px solid #2196f3;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            text-align: center;
+            font-size: 1.1em;
+        }
+
+        .formula-box strong {
+            color: #1976d2;
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        ul.steps {
+            padding-left: 20px;
+            line-height: 1.8;
+        }
+
+        ul.steps li {
+            margin: 10px 0;
+        }
+
+        .highlight {
+            background: linear-gradient(120deg, #ffeaa7 0%, #ffeaa7 100%);
+            background-repeat: no-repeat;
+            background-size: 100% 0.4em;
+            background-position: 0 88%;
+            padding: 0 4px;
+            font-weight: 600;
+        }
+
+        @media (max-width: 768px) {
+            .equipment-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 1.8em;
+            }
+            
+            .slide {
+                padding: 25px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Guía de Laboratorio SCADA - Ethernet</h1>
+            <p>PLC Delta SE + Modbus TCP/IP + KEPServerEX + InfileLink</p>
+        </div>
+
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressBar" style="width: 11.1%"></div>
+        </div>
+
+        <!-- Slide 1: Objetivos -->
+        <div class="slide active" id="slide1">
+            <h2>Objetivos del Laboratorio</h2>
+            
+            <div class="objectives-box">
+                <ul>
+                    <li>Configurar la comunicación <span class="highlight">Ethernet Modbus TCP/IP</span> entre un PLC Delta DVP-SE y una estación PC</li>
+                    <li>Enlazar <strong>KEPServerEX</strong> con el PLC vía Ethernet y mapear variables de proceso</li>
+                    <li>Desarrollar una interfaz SCADA minimalista en <strong>InfileLink</strong> para monitoreo y control</li>
+                    <li>Implementar <span class="highlight">escalado de variables analógicas</span> directamente en InfileLink (sin programación en PLC)</li>
+                    <li>Aplicar lógica con <span class="highlight">salidas retenidas, temporizadores, contadores</span> y conversión <span class="highlight">entero a flotante</span></li>
+                </ul>
+            </div>
+
+            <div class="image-placeholder">
+                <img src="1.PNG" alt="Diagrama de arquitectura Ethernet" onerror="this.style.display='none'; this.parentElement.innerHTML='<div class=\'placeholder-only\'><span style=\'font-size: 3em; margin-bottom: 10px;\'>🌐</span><strong>Figura 1:</strong> Arquitectura Modbus TCP/IP<br><small>Insertar imagen 1.PNG aquí</small></div>'">
+            </div>
+        </div>
+
+        <!-- Slide 2: Equipos -->
+        <div class="slide" id="slide2">
+            <h2>Equipos y Software Requerido</h2>
+            
+            <div class="equipment-grid">
+                <div class="equipment-item">
+                    <strong>PLC</strong>
+                    Delta DVP-SE (con puerto Ethernet)
+                </div>
+                <div class="equipment-item">
+                    <strong>Cable</strong>
+                    Ethernet RJ45 (crossover o directo según switch)
+                </div>
+                <div class="equipment-item">
+                    <strong>Entrada Analógica</strong>
+                    Sensor 4-20mA o 0-10V (simulado o real)
+                </div>
+                <div class="equipment-item">
+                    <strong>Salida Analógica</strong>
+                    Actuador 4-20mA o 0-10V (simulado o real)
+                </div>
+                <div class="equipment-item">
+                    <strong>Software PLC</strong>
+                    ISPSoft
+                </div>
+                <div class="equipment-item">
+                    <strong>Software Configuración</strong>
+                    DCSOFT (Delta Configuration Soft)
+                </div>
+                <div class="equipment-item">
+                    <strong>Gateway SCADA</strong>
+                    KEPServerEX (driver Modbus TCP/IP)
+                </div>
+                <div class="equipment-item">
+                    <strong>HMI/SCADA</strong>
+                    InfileLink
+                </div>
+                <div class="equipment-item">
+                    <strong>PC</strong>
+                    Windows 10/11, misma red que el PLC
+                </div>
+            </div>
+
+            <div class="image-placeholder">
+                <img src="2.PNG" alt="Configuración física Ethernet" onerror="this.style.display='none'; this.parentElement.innerHTML='<div class=\'placeholder-only\'><span style=\'font-size: 3em; margin-bottom: 10px;\'>🔌</span><strong>Figura 2:</strong> Conexión Ethernet PLC-PC<br><small>Insertar imagen 2.PNG aquí</small></div>'">
+            </div>
+        </div>
+
+        <!-- Slide 3: Problema -->
+        <div class="slide" id="slide3">
+            <h2>Planteamiento del Problema</h2>
+            
+            <div class="problem-box">
+                <h3>Contexto Industrial</h3>
+                <p>Sistema de control de nivel y flujo en tanque de proceso con adquisición de variables analógicas.</p>
+                
+                <h3 style="margin-top: 25px;">Requisitos Funcionales del Programa PLC</h3>
+                
+                <div class="requirement">
+                    <strong>1. Salidas retenidas (latch/unlatch):</strong><br>
+                    Bomba y válvula de control activadas/desactivadas por pulsadores START/STOP con mantenimiento de estado.
+                </div>
+                
+                <div class="requirement">
+                    <strong>2. Temporizador (TON/TOF):</strong><br>
+                    Control de tiempo de llenado con reinicio automático al completar ciclo o presionar RESET.
+                </div>
+                
+                <div class="requirement">
+                    <strong>3. Contador ascendente:</strong><br>
+                    Conteo de ciclos completados con visualización de conteo parcial y total.
+                </div>
+                
+                <div class="requirement">
+                    <strong>4. Conversión entero → flotante (rutina aislada):</strong><br>
+                    Subrutina independiente que convierta valor entero (lectura ADC) a formato flotante IEEE-754.
+                </div>
+                
+                <div class="requirement">
+                    <strong>5. Variables analógicas:</strong><br>
+                    Lectura de entrada analógica (0-2000) y escritura a salida analógica (0-4000) <strong>SIN ESCALAR EN EL PLC</strong>.
+                </div>
+            </div>
+
+            <div class="warning-box">
+                <strong>⚠️ Importante:</strong> El escalado de variables analógicas (4-20mA → 0-100%, 0-10V → 0-50°C, etc.) se realizará <strong>EXCLUSIVAMENTE en InfileLink</strong>, no en el PLC.
+            </div>
+
+            <div class="image-row">
+                <div class="image-placeholder">
+                    <img src="3.PNG" alt="Diagrama de flujo del proceso" onerror="this.style.display='none'; this.parentElement.innerHTML='<div class=\'placeholder-only\'><span style=\'font-size: 3em; margin-bottom: 10px;\'>🔄</span><strong>Figura 3:</strong> Diagrama de flujo<br><small>Insertar imagen 3.PNG aquí</small></div>'">
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 4: Fase 1 -->
+        <div class="slide" id="slide4">
+            <span class="phase-badge">FASE 1</span>
+            <h2>Configuración de Red Ethernet con DCSOFT</h2>
+            
+            <div class="warning-box">
+                <strong>💡 Recomendación:</strong> Utilizar <strong>DCSOFT (Delta Configuration Soft)</strong> en lugar de ISPSoft para configurar parámetros Ethernet. DCSOFT es la herramienta especializada de Delta para configuración de hardware y comunicaciones.
+            </div>
+
+            <h3>1.1 Instalación y Conexión Inicial</h3>
+            <ul class="steps">
+                <li>Instalar <strong>DCSOFT</strong> desde el sitio web de Delta o CD de software</li>
+                <li>Conectar el PLC Delta DVP-SE al PC mediante cable USB o Ethernet</li>
+                <li>Abrir DCSOFT y seleccionar <strong>"Communication Setting"</strong></li>
+                <li>Configurar conexión USB o Ethernet temporal para detección del PLC</li>
+            </ul>
+
+            <h3>1.2 Configuración IP con DCSOFT</h3>
+            <ul class="steps">
+                <li>En DCSOFT, ir a <strong>"PLC Configuration" → "Ethernet Port Setting"</strong></li>
+                <li>Seleccionar el PLC detectado en la lista</li>
+                <li>Habilitar <strong>"Use Fixed IP Address"</strong> (IP estática)</li>
+                <li>Configurar los siguientes parámetros:</li>
+            </ul>
+
+            <div class="objectives-box">
+                <ul>
+                    <li><strong>IP Address:</strong> 192.168.1.100</li>
+                    <li><strong>Subnet Mask:</strong> 255.255.255.0</li>
+                    <li><strong>Default Gateway:</strong> 192.168.1.1 (opcional)</li>
+                    <li><strong>Modbus TCP Port:</strong> 502</li>
+                    <li><strong>Modbus TCP Server:</strong> Habilitado ✓</li>
+                </ul>
+            </div>
+
+            <h3>1.3 Descargar Configuración al PLC</h3>
+            <ul class="steps">
+                <li>Hacer clic en <strong>"Download to PLC"</strong> o presionar F2</li>
+                <li>Confirmar la descarga de parámetros</li>
+                <li>Esperar mensaje de <strong>"Download Successful"</strong></li>
+                <li><strong>Reiniciar el PLC</strong> (ciclo de energía o comando RESET)</li>
+                <li>La nueva configuración IP entrará en vigor después del reinicio</li>
+            </ul>
+
+            <div class="image-placeholder">
+                <img src="4.PNG" alt="Configuración IP en DCSOFT" onerror="this.style.display='none'; this.parentElement.innerHTML='<div class=\'placeholder-only\'><span style=\'font-size: 3em; margin-bottom: 10px;\'>⚙️</span><strong>Figura 4:</strong> Configuración Ethernet en DCSOFT<br><small>Insertar imagen 4.PNG aquí</small></div>'">
+            </div>
+
+            <h3>1.4 Configuración de Red del PC</h3>
+            <ul class="steps">
+                <li>Panel de Control → Centro de redes → Cambiar configuración del adaptador</li>
+                <li>Propiedades de Ethernet → IPv4</li>
+                <li>IP: <strong>192.168.1.50</strong> (misma subred, diferente host)</li>
+                <li>Máscara: <strong>255.255.255.0</strong></li>
+            </ul>
+
+            <h3>1.5 Verificación de Conexión</h3>
+            <div class="code-box">
+<span class="comment">Abre CMD y prueba conectividad:</span>
+C:\> ping 192.168.1.100
+
+<span class="comment">Respuesta esperada:</span>
+Respuesta desde 192.168.1.100: bytes=32 tiempo&lt;1ms TTL=128
+            </div>
+
+            <div class="success-box">
+                ✅ Si hay respuesta, la configuración Ethernet con DCSOFT fue exitosa
+            </div>
+
+            <div class="warning-box">
+                <strong>⚠️ Nota:</strong> Si el PLC ya tiene una IP configurada y no responde, usar DCSOFT en modo USB para cambiar la IP, o usar la función "Search PLC" de DCSOFT para detectar automáticamente el dispositivo en la red.
+            </div>
+        </div>
+
+        <!-- Slide 5: Fase 2 -->
+        <div class="slide" id="slide5">
+            <span class="phase-badge">FASE 2</span>
+            <h2>Configuración KEPServerEX Modbus TCP/IP</h2>
+            
+            <h3>2.1 Crear Canal Modbus TCP</h3>
+            <ul class="steps">
+                <li>Nuevo proyecto → Add Channel</li>
+                <li>Driver: <strong>Modbus TCP/IP</strong></li>
+                <li>Nombre: <strong>Channel_Delta_Ethernet</strong></li>
+            </ul>
+
+            <h3>2.2 Configurar Dispositivo</h3>
+            <ul class="steps">
+                <li>Add Device en el canal creado</li>
+                <li>Nombre: <strong>PLC_Delta_SE</strong></li>
+                <li>ID de dispositivo: <strong>1</strong> (Unit ID Modbus)</li>
+                <li>Hostname/IP: <strong>192.168.1.100</strong></li>
+                <li>Puerto: <strong>502</strong></li>
+                <li>Protocolo: <strong>Modbus TCP</strong></li>
+                <li>Request Timeout: <strong>1000 ms</strong></li>
+            </ul>
+
+            <div class="image-placeholder">
+                <img src="5.PNG" alt="Configuración KEPServer Modbus TCP" onerror="this.style.display='none'; this.parentElement.innerHTML='<div class=\'placeholder-only\'><span style=\'font-size: 3em; margin-bottom: 10px;\'>🏷️</span><strong>Figura 5:</strong> Configuración KEPServerEX<br><small>Insertar imagen 5.PNG aquí</small></div>'">
+            </div>
+
+            <h3>2.3 Crear Tags</h3>
+            <p>Crear las siguientes variables bajo el dispositivo:</p>
+
+            <table class="tag-table">
+                <thead>
+                    <tr>
+                        <th>Tag</th>
+                        <th>Tipo</th>
+                        <th>Dirección</th>
+                        <th>Descripción</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>PLC.START</code></td>
+                        <td>Boolean</td>
+                        <td>00001</td>
+                        <td>Pulsador marcha</td>
+                    </tr>
+                    <tr>
+                        <td><code>PLC.STOP</code></td>
+                        <td>Boolean</td>
+                        <td>00002</td>
+                        <td>Pulsador parada</td>
+                    </tr>
+                    <tr>
+                        <td><code>PLC.PUMP</code></td>
+                        <td>Boolean</td>
+                        <td>00101</td>
+                        <td>Salida bomba</td>
+                    </tr>
+                    <tr>
+                        <td><code>PLC.ANALOG_IN_RAW</code></td>
+                        <td>Word</td>
+                        <td>40001</td>
+                        <td>Entrada analógica (0-32000)</td>
+                    </tr>
+                    <tr>
+                        <td><code>PLC.ANALOG_OUT_RAW</code></td>
+                        <td>Word</td>
+                        <td>40002</td>
+                        <td>Salida analógica (0-32000)</td>
+                    </tr>
+                    <tr>
+                        <td><code>PLC.TIMER_STATUS</code></td>
+                        <td>Boolean</td>
+                        <td>T0.DN</td>
+                        <td>Estado temporizador</td>
+                    </tr>
+                    <tr>
+                        <td><code>PLC.COUNTER_TOTAL</code></td>
+                        <td>DWord</td>
+                        <td>C0.ACC</td>
+                        <td>Conteo total</td>
+                    </tr>
+                    <tr>
+                        <td><code>PLC.FLOAT_VALUE</code></td>
+                        <td>Float</td>
+                        <td>D10-D11</td>
+                        <td>Valor flotante</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Slide 6: Escalado Teoría -->
+        <div class="slide" id="slide6">
+            <span class="phase-badge">FASE 3</span>
+            <h2>Escalado de Variables Analógicas en InfileLink</h2>
+            
+            <h3>Fundamento Teórico</h3>
+            <p>El PLC lee valores brutos del ADC (0-32000 para 4-20mA o 0-10V). En lugar de escalar en el PLC, usaremos <strong>fórmulas matemáticas en InfileLink</strong>.</p>
+
+            <div class="formula-box">
+                <strong>Fórmula de Escalado Lineal:</strong>
+                <div style="font-size: 1.3em; margin: 15px 0; font-family: 'Courier New', monospace;">
+                    ValorEscalado = (Raw - RawMin) × (EngMax - EngMin) / (RawMax - RawMin) + EngMin
+                </div>
+            </div>
+
+            <h3>Ejemplos Prácticos:</h3>
+
+            <div class="objectives-box">
+                <strong>Caso 1: 4-20mA → 0-100% (Nivel de tanque)</strong>
+                <ul>
+                    <li>RawMin = 6400 (equivalente a 4mA)</li>
+                    <li>RawMax = 32000 (equivalente a 20mA)</li>
+                    <li>EngMin = 0%</li>
+                    <li>EngMax = 100%</li>
+                    <li><strong>Fórmula:</strong> <code>Nivel = (Raw - 6400) × 100 / (32000 - 6400)</code></li>
+                </ul>
+            </div>
+
+            <div class="objectives-box">
+                <strong>Caso 2: 0-10V → 0-50°C (Temperatura)</strong>
+                <ul>
+                    <li>RawMin = 0 (0V)</li>
+                    <li>RawMax = 32000 (10V)</li>
+                    <li>EngMin = 0°C</li>
+                    <li>EngMax = 50°C</li>
+                    <li><strong>Fórmula:</strong> <code>Temp = Raw × 50 / 32000</code></li>
+                </ul>
+            </div>
+
+            <div class="objectives-box">
+                <strong>Caso 3: 4-20mA → 0-1000 L/min (Flujo)</strong>
+                <ul>
+                    <li>RawMin = 6400 (4mA)</li>
+                    <li>RawMax = 32000 (20mA)</li>
+                    <li>EngMin = 0 L/min</li>
+                    <li>EngMax = 1000 L/min</li>
+                    <li><strong>Fórmula:</strong> <code>Flujo = (Raw - 6400) × 1000 / 25600</code></li>
+                </ul>
+            </div>
+
+            <div class="warning-box">
+                <strong>⚠️ Importante:</strong> El PLC solo envía/recibe valores RAW (0-32000). Todo el escalado se hace en InfileLink.
+            </div>
+        </div>
+
+        <!-- Slide 7: Escalado Práctico -->
+        <div class="slide" id="slide7">
+            <span class="phase-badge">FASE 3 - CONT</span>
+            <h2>Implementación del Escalado en InfileLink</h2>
+            
+            <h3>Paso 1: Crear Tags Intermedios</h3>
+            <p>En KEPServerEX, además de los tags RAW, crea tags virtuales para valores escalados:</p>
+            <ul class="steps">
+                <li><code>SCADA.NIVEL_PORCENTAJE</code> (Float)</li>
+                <li><code>SCADA.TEMPERATURA</code> (Float)</li>
+                <li><code>SCADA.FLUJO</code> (Float)</li>
+            </ul>
+
+            <h3>Paso 2: Configurar Escalado en InfileLink</h3>
+            <p>InfileLink permite aplicar fórmulas directamente en las propiedades del tag o mediante scripts:</p>
+
+            <div class="code-box">
+<span class="comment">// Método 1: Fórmula directa en propiedad del tag</span>
+<span class="comment">// En InfileLink, ve a Properties del tag → Expression</span>
+
+Tag: Nivel_Tanque
+Expression: (<span class="keyword">PLC.ANALOG_IN_RAW</span> - <span class="number">6400</span>) * <span class="number">100</span> / (<span class="number">32000</span> - <span class="number">6400</span>)
+DataType: Float
+Format: <span class="string">"0.00 %"</span>
+            </div>
+
+            <div class="code-box">
+<span class="comment">// Método 2: Script global de escalado</span>
+<span class="comment">// En InfileLink, crea un script que se ejecute cada ciclo</span>
+
+<span class="keyword">function</span> <span class="keyword">EscalarVariables</span>() {
+    <span class="comment">// Escalar entrada analógica a porcentaje</span>
+    <span class="keyword">var</span> raw = <span class="keyword">PLC.ANALOG_IN_RAW</span>;
+    <span class="keyword">var</span> nivel = ((raw - <span class="number">6400</span>) * <span class="number">100</span>) / (<span class="number">32000</span> - <span class="number">6400</span>);
+    
+    <span class="comment">// Limitar entre 0 y 100</span>
+    <span class="keyword">if</span> (nivel &lt; <span class="number">0</span>) nivel = <span class="number">0</span>;
+    <span class="keyword">if</span> (nivel &gt; <span class="number">100</span>) nivel = <span class="number">100</span>;
+    
+    <span class="keyword">SCADA.NIVEL_PORCENTAJE</span> = nivel;
+    
+    <span class="comment">// Escalar a temperatura (ejemplo)</span>
+    <span class="keyword">var</span> temp = (raw * <span class="number">50</span>) / <span class="number">32000</span>;
+    <span class="keyword">SCADA.TEMPERATURA</span> = temp;
+}
+
+<span class="comment">// Ejecutar cada 1000ms</span>
+<span class="keyword">SetTimer</span>(<span class="string">"EscalarVariables"</span>, <span class="number">1000</span>);
+            </div>
+
+            <h3>Paso 3: Escalado Inverso (Salida Analógica)</h3>
+            <p>Para escribir en salida analógica, debes hacer el proceso inverso:</p>
+
+            <div class="code-box">
+<span class="comment">// Si el operador escribe 75% en SCADA</span>
+<span class="comment">// Convertir a valor RAW (0-32000)</span>
+
+<span class="keyword">function</span> <span class="keyword">EscribirSalida</span>(porcentaje) {
+    <span class="comment">// Fórmula inversa:</span>
+    <span class="comment">// Raw = (EngValue - EngMin) × (RawMax - RawMin) / (EngMax - EngMin) + RawMin</span>
+    
+    <span class="keyword">var</span> rawValue = ((porcentaje - <span class="number">0</span>) * (<span class="number">32000</span> - <span class="number">6400</span>)) / (<span class="number">100</span> - <span class="number">0</span>) + <span class="number">6400</span>;
+    
+    <span class="comment">// Escribir al PLC</span>
+    <span class="keyword">PLC.ANALOG_OUT_RAW</span> = <span class="keyword">Math.round</span>(rawValue);
+}
+            </div>
+
+            <div class="success-box">
+                ✅ <strong>Ventaja:</strong> El PLC mantiene valores RAW puros, facilitando diagnóstico y cambio de rangos sin reprogramar.
+            </div>
+        </div>
+
+        <!-- Slide 8: Diseño SCADA -->
+        <div class="slide" id="slide8">
+            <span class="phase-badge">FASE 4</span>
+            <h2>Diseño de Pantalla SCADA en InfileLink</h2>
+            
+            <h3>Elementos de la Interfaz</h3>
+            <ul class="steps">
+                <li>Conectar InfileLink a KEPServerEX vía <strong>OPC UA/DA</strong></li>
+                <li>Diseñar pantalla minimalista con:</li>
+            </ul>
+
+            <div class="objectives-box">
+                <ul>
+                    <li><strong>Botones:</strong> START, STOP, RESET (tags booleanos)</li>
+                    <li><strong>Indicadores:</strong> PUMP, VALVE, TIMER_STATUS, COUNTER_STATUS</li>
+                    <li><strong>Displays numéricos:</strong> 
+                        <ul>
+                            <li><code>PLC.ANALOG_IN_RAW</code> → Valor RAW (0-32000)</li>
+                            <li><code>SCADA.NIVEL_PORCENTAJE</code> → Valor escalado (0-100%)</li>
+                            <li><code>SCADA.TEMPERATURA</code> → Temperatura (0-50°C)</li>
+                            <li><code>PLC.TIMER_CURRENT</code> → Tiempo transcurrido</li>
+                            <li><code>PLC.COUNTER_TOTAL</code> → Ciclos completados</li>
+                            <li><code>PLC.FLOAT_VALUE</code> → Valor flotante (formato %.2f)</li>
+                        </ul>
+                    </li>
+                    <li><strong>Slider/Input:</strong> Para escribir setpoint de salida analógica (0-100%)</li>
+                </ul>
+            </div>
+
+            <h3>Ejemplo de Código para Slider:</h3>
+            <div class="code-box">
+<span class="comment">// Cuando el operador mueve el slider (0-100%)</span>
+<span class="keyword">OnSliderChange</span>(valor) {
+    <span class="comment">// Escalar inverso: 0-100% → 0-32000</span>
+    <span class="keyword">var</span> rawOutput = ((valor - <span class="number">0</span>) * (<span class="number">32000</span> - <span class="number">6400</span>)) / (<span class="number">100</span> - <span class="number">0</span>) + <span class="number">6400</span>;
+    
+    <span class="comment">// Escribir al PLC</span>
+    <span class="keyword">PLC.ANALOG_OUT_RAW</span> = <span class="keyword">Math.round</span>(rawOutput);
+    
+    <span class="comment">// Actualizar display</span>
+    <span class="keyword">Display_Setpoint</span>.Text = valor.toFixed(<span class="number">1</span>) + <span class="string">" %"</span>;
+}
+            </div>
+
+            <div class="image-placeholder">
+                <img src="6.PNG" alt="Pantalla SCADA InfileLink" onerror="this.style.display='none'; this.parentElement.innerHTML='<div class=\'placeholder-only\'><span style=\'font-size: 3em; margin-bottom: 10px;\'>🖥️</span><strong>Figura 6:</strong> Pantalla SCADA<br><small>Insertar imagen 6.PNG aquí</small></div>'">
+            </div>
+
+            <h3>Configuración de Actualización</h3>
+            <ul class="steps">
+                <li><strong>Polling Rate:</strong> 500ms</li>
+                <li><strong>Deadband:</strong> 1% (para evitar fluctuaciones)</li>
+                <li><strong>Quality Check:</strong> Habilitado</li>
+            </ul>
+        </div>
+
+        <!-- Slide 9: Programa PLC -->
+        <div class="slide" id="slide9">
+            <span class="phase-badge">FASE 5</span>
+            <h2>Programa del PLC y Validación</h2>
+            
+            <h3>Requisitos del Programa en ISPSoft</h3>
+            <div class="warning-box">
+                <strong>El estudiante debe desarrollar:</strong>
+                <ul style="margin-top: 10px; padding-left: 20px;">
+                    <li>Configuración de IP Ethernet en parámetros del PLC (usando DCSOFT)</li>
+                    <li>Habilitación de Modbus TCP Server</li>
+                    <li>Lógica de salidas retenidas (SET/RESET)</li>
+                    <li>Temporizadores TON/TOF</li>
+                    <li>Contadores ascendentes</li>
+                    <li>Rutina aislada de conversión entero→flotante</li>
+                    <li><strong>NO escalar variables analógicas</strong> (solo leer/escribir RAW)</li>
+                </ul>
+            </div>
+
+            <h3>Estructura Sugerida:</h3>
+            <div class="code-box">
+<span class="comment">// Programa Principal - ISPSoft</span>
+
+<span class="keyword">NETWORK 1</span>: <span class="string">"Lectura de entrada analógica RAW"</span>
+<span class="keyword">LD</span> <span class="keyword">M8000</span>          <span class="comment">// Siempre ON</span>
+<span class="keyword">MOV</span> <span class="keyword">D0</span> <span class="keyword">D100</span>     <span class="comment">// D0 = Canal 0 ADC (0-32000)</span>
+                   <span class="comment">// D100 se mapea a Modbus 40001</span>
+
+<span class="keyword">NETWORK 2</span>: <span class="string">"Escritura de salida analógica RAW"</span>
+<span class="keyword">LD</span> <span class="keyword">M8000</span>
+<span class="keyword">MOV</span> <span class="keyword">D200</span> <span class="keyword">D10</span>    <span class="comment">// D200 = Valor desde SCADA</span>
+                   <span class="comment">// D10 = Canal 0 DAC (0-32000)</span>
+
+<span class="keyword">NETWORK 3</span>: <span class="string">"Conversión Entero a Flotante (aislada)"</span>
+<span class="keyword">LD</span> <span class="keyword">M100</span>          <span class="comment">// Trigger de conversión</span>
+<span class="keyword">FLT</span> <span class="keyword">D100</span> <span class="keyword">D10</span>    <span class="comment">// D100 entero → D10-D11 flotante</span>
+            </div>
+
+            <div class="image-placeholder placeholder-only" style="background: #e3f2fd; border-color: #2196f3;">
+                <span style="font-size: 4em; margin-bottom: 15px;">💾</span>
+                <strong>Insertar aquí la captura del programa del PLC</strong><br>
+                <small>Imagen 7.PNG - Programa en ISPSoft</small>
+            </div>
+
+            <h3>Validación Final</h3>
+            <ul class="steps">
+                <li>Verificar ping al PLC: <code>ping 192.168.1.100</code></li>
+                <li>Verificar comunicación en KEPServer (Quality = Good)</li>
+                <li>Forzar valor en entrada analógica y verificar RAW en InfileLink</li>
+                <li>Verificar que el escalado funcione correctamente</li>
+                <li>Escribir desde slider y verificar salida analógica en PLC</li>
+            </ul>
+
+            <div class="success-box">
+                ✅ <strong>Criterio de éxito:</strong> Al variar la entrada analógica de 4mA a 20mA, InfileLink debe mostrar 0% a 100% en tiempo real.
+            </div>
+        </div>
+
+        <!-- Slide 10: Evaluación -->
+        <div class="slide" id="slide10">
+            <h2>Entregables y Evaluación</h2>
+            
+            <table class="tag-table">
+                <thead>
+                    <tr>
+                        <th>Criterio</th>
+                        <th>Peso</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Configuración correcta de Ethernet con DCSOFT y Modbus TCP/IP en KEPServerEX</td>
+                        <td><strong>15%</strong></td>
+                    </tr>
+                    <tr>
+                        <td>Tags creados y funcionales (I/O discretas, analógicas RAW, timer, counter)</td>
+                        <td><strong>15%</strong></td>
+                    </tr>
+                    <tr>
+                        <td>Programa PLC con lógica solicitada (SIN escalado analógico)</td>
+                        <td><strong>20%</strong></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Escalado de variables analógicas implementado en InfileLink</strong> (fórmulas/código)</td>
+                        <td><strong>25%</strong></td>
+                    </tr>
+                    <tr>
+                        <td>Pantalla InfileLink minimalista, funcional y con escalado operativo</td>
+                        <td><strong>15%</strong></td>
+                    </tr>
+                    <tr>
+                        <td>Conversión entero→flotante y validación de comunicación Ethernet</td>
+                        <td><strong>10%</strong></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>Entregables</h3>
+            <ul class="steps">
+                <li>Proyecto PLC (.isp) con configuración Ethernet</li>
+                <li>Archivo de configuración DCSOFT exportado</li>
+                <li>Archivo KEPServerEX exportado (.ksx)</li>
+                <li>Proyecto InfileLink con scripts de escalado</li>
+                <li>Reporte con:
+                    <ul style="margin-top: 10px; padding-left: 20px;">
+                        <li>Capturas de configuración IP en DCSOFT</li>
+                        <li>Fórmulas de escalado utilizadas</li>
+                        <li>Código InfileLink implementado</li>
+                        <li>Pruebas de comunicación y escalado en tiempo real</li>
+                    </ul>
+                </li>
+            </ul>
+
+            <div class="success-box" style="margin-top: 25px;">
+                <strong>✅ Validación final:</strong> Demostrar que al cambiar la entrada analógica física (o simulada), InfileLink muestra el valor escalado correctamente SIN intervención del PLC en el cálculo.
+            </div>
+        </div>
+
+        <div class="slide-counter" id="slideCounter">
+            Diapositiva 1 de 10
+        </div>
+
+        <div class="nav-buttons">
+            <button class="btn btn-prev" id="prevBtn" onclick="changeSlide(-1)" disabled>← Anterior</button>
+            <button class="btn btn-next" id="nextBtn" onclick="changeSlide(1)">Siguiente →</button>
+        </div>
+    </div>
+
+    <script>
+        let currentSlide = 1;
+        const totalSlides = 10;
+
+        function changeSlide(direction) {
+            // Ocultar slide actual
+            document.getElementById(`slide${currentSlide}`).classList.remove('active');
+            
+            // Calcular nuevo slide
+            currentSlide += direction;
+            
+            // Validar límites
+            if (currentSlide < 1) currentSlide = 1;
+            if (currentSlide > totalSlides) currentSlide = totalSlides;
+            
+            // Mostrar nuevo slide
+            document.getElementById(`slide${currentSlide}`).classList.add('active');
+            
+            // Actualizar botones
+            document.getElementById('prevBtn').disabled = currentSlide === 1;
+            document.getElementById('nextBtn').disabled = currentSlide === totalSlides;
+            
+            // Actualizar contador
+            document.getElementById('slideCounter').textContent = 
+                `Diapositiva ${currentSlide} de ${totalSlides}`;
+            
+            // Actualizar barra de progreso
+            const progress = (currentSlide / totalSlides) * 100;
+            document.getElementById('progressBar').style.width = `${progress}%`;
+            
+            // Scroll al inicio
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Navegación con teclado
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'ArrowRight' || e.key === ' ') {
+                if (currentSlide < totalSlides) changeSlide(1);
+            } else if (e.key === 'ArrowLeft') {
+                if (currentSlide > 1) changeSlide(-1);
+            }
+        });
+    </script>
+</body>
+</html>
